@@ -109,27 +109,32 @@ const TeacherAnalytics = () => {
               console.log("Processing student:", s.username, "with emotion:", s.top_emotion);
 
               // Generate emotion distribution for pie chart
-              const emotionsDistribution = Object.entries(s.emotion_distribution || {}).map(([emotion, value]) => ({
-                name: emotion.charAt(0).toUpperCase() + emotion.slice(1),
-                value: value,
-                color: getEmotionColor(emotion)
-              }));
+              const emotionsDistribution = Object.entries(s.emotion_distribution || {}).map(
+                  ([emotion, value]) => ({
+                    name: emotion.charAt(0).toUpperCase() + emotion.slice(1),
+                    value: value,
+                    color: getEmotionColor(emotion),
+                  })
+              );
 
-              // Clean and validate base64 data
-              const cleanBase64 = s.chart_image ? s.chart_image.replace(/^data:image\/[a-z]+;base64,/, '') : '';
+              // Clean and validate base64 image
+              const cleanBase64 = s.chart_image
+                  ? s.chart_image.replace(/^data:image\/[a-z]+;base64,/, "")
+                  : "";
               const isValidImage = validateBase64Image(s.chart_image);
 
               console.log(`Image validation for ${s.username}:`, {
                 originalLength: s.chart_image?.length,
                 cleanedLength: cleanBase64.length,
                 isValid: isValidImage,
-                preview: s.chart_image?.substring(0, 100)
+                preview: s.chart_image?.substring(0, 100),
               });
 
               return {
                 id: s.id,
                 name: s.username,
                 status: s.top_emotion,
+                secondEmotion: s.second_emotion || null,
                 studentId: `S-${s.id.toString().padStart(4, "0")}`,
                 grade: "10A",
                 initials: getInitials(s.username),
@@ -141,14 +146,20 @@ const TeacherAnalytics = () => {
                   focus: Math.random() * 100, // Mock data
                   satisfaction: Math.random() * 100, // Mock data
                   distress: Math.round(s.distress_percentage || 0),
-                  confusion: Math.random() * 25 // Mock data
+                  confusion: Math.random() * 25, // Mock data
                 },
                 emotionsDistribution: emotionsDistribution,
                 totalFrames: s.total_frames,
-                timestamp: s.timestamp
+                timestamp: s.timestamp,
+
+                // NEW FIELDS
+                positiveIndicators: Array.isArray(s.positive_indicators) ? s.positive_indicators : [],
+                areasToWatch: Array.isArray(s.areas_to_watch) ? s.areas_to_watch : [],
+                recommendations: Array.isArray(s.recommendations) ? s.recommendations : [],
               };
             })
             : [];
+
 
         setStudents(fetchedStudents);
         console.log("Processed students:", fetchedStudents);
@@ -656,63 +667,49 @@ const TeacherAnalytics = () => {
 
                   {/* Recommendations */}
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Recommendations */}
                     <div className="bg-blue-50 rounded-lg p-4">
                       <h3 className="font-semibold mb-2 text-blue-800">Recommendations</h3>
                       <ul className="text-sm text-blue-700 space-y-1">
-                        {selectedStudent.distressPercentage > 50 ? (
-                            <>
-                              <li>• Consider one-on-one check-in</li>
-                              <li>• Provide additional support resources</li>
-                              <li>• Monitor closely in upcoming classes</li>
-                            </>
+                        {selectedStudent.recommendations?.length > 0 ? (
+                            selectedStudent.recommendations.map((rec, idx) => (
+                                <li key={`rec-${idx}`}>• {rec}</li>
+                            ))
                         ) : (
-                            <>
-                              <li>• Continue current teaching approach</li>
-                              <li>• Encourage participation</li>
-                              <li>• Provide positive reinforcement</li>
-                            </>
+                            <li>No specific recommendations.</li>
                         )}
                       </ul>
                     </div>
 
+                    {/* Positive Indicators */}
                     <div className="bg-green-50 rounded-lg p-4">
                       <h3 className="font-semibold mb-2 text-green-800">Positive Indicators</h3>
                       <ul className="text-sm text-green-700 space-y-1">
-                        {selectedStudent.status === 'happy' ? (
-                            <>
-                              <li>• Shows positive engagement</li>
-                              <li>• Appears comfortable in class</li>
-                              <li>• Good emotional state</li>
-                            </>
+                        {selectedStudent.positiveIndicators?.length > 0 ? (
+                            selectedStudent.positiveIndicators.map((pos, idx) => (
+                                <li key={`pos-${idx}`}>• {pos}</li>
+                            ))
                         ) : (
-                            <>
-                              <li>• Attending class regularly</li>
-                              <li>• Showing up for learning</li>
-                              <li>• Responsive to instruction</li>
-                            </>
+                            <li>No positive indicators recorded.</li>
                         )}
                       </ul>
                     </div>
 
+                    {/* Areas to Watch */}
                     <div className="bg-yellow-50 rounded-lg p-4">
                       <h3 className="font-semibold mb-2 text-yellow-800">Areas to Watch</h3>
                       <ul className="text-sm text-yellow-700 space-y-1">
-                        {selectedStudent.alertTriggered ? (
-                            <>
-                              <li>• High distress levels detected</li>
-                              <li>• May need additional support</li>
-                              <li>• Consider counseling referral</li>
-                            </>
+                        {selectedStudent.areasToWatch?.length > 0 ? (
+                            selectedStudent.areasToWatch.map((area, idx) => (
+                                <li key={`area-${idx}`}>• {area}</li>
+                            ))
                         ) : (
-                            <>
-                              <li>• Monitor engagement levels</li>
-                              <li>• Watch for changes in behavior</li>
-                              <li>• Maintain supportive environment</li>
-                            </>
+                            <li>No areas of concern noted.</li>
                         )}
                       </ul>
                     </div>
                   </div>
+
                 </div>
             )}
           </div>
