@@ -796,7 +796,11 @@ const ClassRecording = () => {
                               size="sm" 
                               className="text-xs px-3 py-2 h-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg shadow-sm"
                               onClick={async () => {
-                                const res = await fetch(`${BASE_URL}/api/download/pdf/${encodeURIComponent(recording.notes)}`);
+                                const res = await fetch(`${BASE_URL}/api/download/pdf/${encodeURIComponent(recording.notes)}`,{
+                                  headers:{
+                                    'ngrok-skip-browser-warning':'true'
+                                  }
+                                });
                                 const blob = await res.blob();
                                 const url = window.URL.createObjectURL(blob);
                                 const a = document.createElement('a');
@@ -814,7 +818,12 @@ const ClassRecording = () => {
                               variant="outline"
                               className="text-xs px-3 py-2 h-8 border-blue-200 hover:bg-blue-50 rounded-lg"
                               onClick={async () => {
-                              const res = await fetch(`${BASE_URL}/api/download/pdf/${encodeURIComponent(recording.quiz)}`);
+                              const res = await fetch(`${BASE_URL}/api/download/pdf/${encodeURIComponent(recording.quiz)}`, {
+                                    headers: {
+                                      'ngrok-skip-browser-warning': 'true'
+                                    }
+                                  }
+                                );
                               const blob = await res.blob();
                               const url = window.URL.createObjectURL(blob);
                               const a = document.createElement('a');
